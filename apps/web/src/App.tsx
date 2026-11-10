@@ -31,7 +31,9 @@ export default function App() {
   }
 
   useEffect(() => { const timer = window.setTimeout(() => void loadEvents(), 180); return () => window.clearTimeout(timer); }, [category, search]);
-  const allCount = useMemo(() => events.length, [events]);
+  const allCount = events.length;
+  const organizerCount = useMemo(() => new Set(events.map((event) => event.organizer)).size, [events]);
+  const registrationCount = useMemo(() => events.reduce((count, event) => count + event.registeredStudents.length, 0), [events]);
 
   async function toggleRegistration(event: CampusEvent) {
     setBusy(event.id); setMessage("");
@@ -66,30 +68,30 @@ export default function App() {
     <header className="topbar">
       <a className="brand" href="#top"><span className="brand-icon">cc</span><span>campus<span className="brand-light">connect</span></span></a>
       <nav><a className="nav-active" href="#events">Discover</a><a href="#events">My events <span className="nav-dot" /></a></nav>
-      <button className="profile" aria-label="Student profile">AM</button>
+      <button className="profile" aria-label="Demo student profile">ST</button>
     </header>
 
     <main id="top">
       <section className="welcome">
-        <div className="welcome-copy"><p className="eyebrow">YOUR CAMPUS, YOUR COMMUNITY</p><h1>Make room for<br /><span>what moves you.</span></h1><p className="welcome-text">Find your people, try something new, and make this semester count.</p><button className="button button-dark" onClick={() => setShowForm(true)}>＋ Host an event</button></div>
-        <div className="welcome-art"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="art-spark">✦</div><div className="art-card card-back">✳<small>CREATE</small></div><div className="art-card card-front">♫<small>CONNECT</small></div><div className="art-note note-one">✷</div><div className="art-note note-two">✦</div><span className="art-caption">good things happen<br />when we show up.</span></div>
+        <div className="welcome-copy"><p className="eyebrow">CAMPUS EVENTS</p><h1>Find your next<br /><span>campus event.</span></h1><p className="welcome-text">Browse club meetings, talks, workshops, and games. Find something worth stepping out for.</p><button className="button button-dark" onClick={() => setShowForm(true)}>＋ Host an event</button></div>
+        <div className="welcome-art"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="art-spark">✦</div><div className="art-card card-back">✳<small>CREATE</small></div><div className="art-card card-front">♫<small>CONNECT</small></div><div className="art-note note-one">✷</div><div className="art-note note-two">✦</div><span className="art-caption">STUDENT LIFE<br />OFF THE TIMETABLE</span></div>
       </section>
 
-      <section className="stats-row" aria-label="Campus activity"><div><strong>{allCount || "05"}</strong><span>upcoming events</span></div><div><strong>12</strong><span>student clubs</span></div><div><strong>1,200<span className="plus">+</span></strong><span>students involved</span></div><div className="stats-note"><span className="live-dot" /> Campus is buzzing</div></section>
+      <section className="stats-row" aria-label="Campus activity"><div><strong>{allCount}</strong><span>events shown</span></div><div><strong>{organizerCount}</strong><span>organizers</span></div><div><strong>{registrationCount}</strong><span>student RSVPs</span></div><div className="stats-note"><span className="live-dot" /> Sign-ups are open</div></section>
 
       <section id="events" className="events-section">
-        <div className="section-heading"><div><p className="eyebrow">THE GOOD STUFF</p><h2>Happening around campus</h2><p className="section-subtitle">Little plans. Big memories. Find your next thing.</p></div><button className="button button-outline" onClick={() => setShowForm(true)}>＋ Add an event</button></div>
+        <div className="section-heading"><div><p className="eyebrow">UPCOMING EVENTS</p><h2>Events this month</h2><p className="section-subtitle">Activities hosted by student clubs and campus groups.</p></div><button className="button button-outline" onClick={() => setShowForm(true)}>＋ Add an event</button></div>
         <div className="toolbar"><div className="category-tabs">{categories.map((item) => <button key={item} className={category === item ? "tab selected" : "tab"} onClick={() => setCategory(item)}>{item}</button>)}</div><label className="search"><span>⌕</span><input aria-label="Search events" placeholder="Search events" value={search} onChange={(e) => setSearch(e.target.value)} /><kbd>⌘ K</kbd></label></div>
         {message && <div className="notice" role="status">{message}<button onClick={() => setMessage("")} aria-label="Dismiss">×</button></div>}
         {loading ? <div className="empty-state">Finding the good stuff…</div> : events.length === 0 ? <div className="empty-state">No events match that search yet. Try another filter or host one!</div> : <div className="event-grid">{events.map((event) => {
           const joined = event.registeredStudents.includes(studentId); const full = event.registeredStudents.length >= event.capacity;
           return <article className="event-card" key={event.id}>
             <div className={`event-art art-${event.category.toLowerCase()}`}><span className="event-art-symbol">{categoryIcon[event.category]}</span><span className="event-category">{event.category}</span><div className="date-stamp"><strong>{formatDate(event.date).split(" ")[1]}</strong><span>{formatDay(event.date).toUpperCase()}</span></div><span className="art-decoration">✦</span></div>
-            <div className="event-body"><div className="event-meta"><span>{formatDate(event.date)} · {event.time}</span><span className="capacity">{event.capacity - event.registeredStudents.length} spots left</span></div><h3>{event.title}</h3><p className="event-description">{event.description}</p><div className="event-location"><span>⌖</span>{event.location}</div><div className="event-footer"><div className="attending"><div className="avatar-stack"><i>A</i><i>J</i><i>M</i></div><span>{event.registeredStudents.length} going</span></div><button className={joined ? "button joined" : "button button-join"} disabled={busy === event.id || (!joined && full)} onClick={() => void toggleRegistration(event)}>{busy === event.id ? "Saving…" : joined ? "Going ✓" : full ? "Full" : "Join event"}</button></div></div>
+            <div className="event-body"><div className="event-meta"><span>{formatDate(event.date)} · {event.time}</span><span className="capacity">{event.capacity - event.registeredStudents.length} spots left</span></div><h3>{event.title}</h3><p className="event-description">{event.description}</p><div className="event-location"><span>⌖</span>{event.location}</div><div className="event-footer"><span className="attending">{event.registeredStudents.length} students going</span><button className={joined ? "button joined" : "button button-join"} disabled={busy === event.id || (!joined && full)} onClick={() => void toggleRegistration(event)}>{busy === event.id ? "Saving…" : joined ? "Going ✓" : full ? "Full" : "Join event"}</button></div></div>
           </article>;
         })}</div>}
       </section>
-      <footer><a className="brand footer-brand" href="#top"><span className="brand-icon">cc</span><span>campus<span className="brand-light">connect</span></span></a><span>Made for the moments between classes.</span><span>© 2026 Campus Connect</span></footer>
+      <footer><a className="brand footer-brand" href="#top"><span className="brand-icon">cc</span><span>campus<span className="brand-light">connect</span></span></a><span>College events and activities</span><span>© 2026 Campus Connect</span></footer>
     </main>
 
     {showForm && <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) setShowForm(false); }}><form className="event-form" onSubmit={createEvent}><div className="form-heading"><div><p className="eyebrow">BRING PEOPLE TOGETHER</p><h2>Host an event</h2></div><button type="button" className="close-button" aria-label="Close" onClick={() => setShowForm(false)}>×</button></div><label>Event name<input name="title" placeholder="e.g. Friday game night" required /></label><label>What’s it about?<textarea name="description" placeholder="Tell students what to expect…" rows={3} required /></label><div className="form-row"><label>Category<select name="category" required>{categories.slice(1).map((item) => <option key={item}>{item}</option>)}</select></label><label>Capacity<input name="capacity" type="number" min="1" defaultValue="50" required /></label></div><div className="form-row"><label>Date<input name="date" type="date" min="2026-11-10" required /></label><label>Time<input name="time" type="time" required /></label></div><label>Location<input name="location" placeholder="Building and room" required /></label><label>Organizer<input name="organizer" placeholder="Club or your name" defaultValue="Student Club" required /></label><button className="button button-dark submit-button" type="submit">Publish event <span>→</span></button></form></div>}

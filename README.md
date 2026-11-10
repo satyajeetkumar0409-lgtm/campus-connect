@@ -1,6 +1,6 @@
-# Campus Connect
+# Campus Connect — College Event Management System
 
-Campus Connect is a full stack college project for discovering and managing student events. Students can search campus activities, filter by category, create an event, and RSVP or cancel their place.
+Campus Connect gives students one place to find campus activities and sign up. Club organizers can post an event with its date, venue, and capacity. Students can browse the list, filter by category, and manage their RSVPs.
 
 ## Run locally
 
@@ -14,7 +14,7 @@ npm run dev
 
 Open <http://localhost:5173>. The Express API runs at <http://localhost:4000>.
 
-## Features
+## Main features
 
 - Search events by name, description, organizer, and location
 - Filter by technology, workshop, cultural, sports, and career events
@@ -23,7 +23,7 @@ Open <http://localhost:5173>. The Express API runs at <http://localhost:4000>.
 - Save event data locally in `apps/api/data/events.json`
 - Responsive layout for desktop and mobile
 
-The demo uses a sample student ID instead of account login. For a larger version, add student authentication, role-based event moderation, email reminders, and a relational database such as PostgreSQL or MySQL.
+This version uses a sample student ID instead of account login. Event records are stored in a JSON file so the project can run without setting up a database. A next development step would be to add student accounts and move event storage to MySQL or PostgreSQL.
 
 ## Stack and layout
 
